@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { LogOut, Home, ShoppingCart, List } from 'lucide-react'
+import { Utensils } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -9,12 +8,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, admin = false }) => {
-  const { user, logout } = useAuth()
   const location = useLocation()
-
-  const handleLogout = async () => {
-    await logout()
-  }
 
   const isActive = (path: string) => location.pathname === path
 
@@ -25,7 +19,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, admin = false }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link to="/" className="text-xl font-bold text-primary-600">
+              <Link to="/" className="text-xl font-bold text-primary-600 flex items-center">
+                <Utensils className="h-6 w-6 mr-2" />
                 Kedai WONTONESIA
               </Link>
             </div>
@@ -41,7 +36,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, admin = false }) => {
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                     }`}
                   >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
                     Menu
                   </Link>
                   <Link
@@ -52,7 +46,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, admin = false }) => {
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                     }`}
                   >
-                    <List className="h-4 w-4 mr-2" />
                     Pesanan Saya
                   </Link>
                 </>
@@ -68,7 +61,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, admin = false }) => {
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                     }`}
                   >
-                    <Home className="h-4 w-4 mr-2" />
                     Dashboard
                   </Link>
                   <Link
@@ -79,8 +71,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, admin = false }) => {
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                     }`}
                   >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    POS
+                    POS Kasir
                   </Link>
                   <Link
                     to="/admin/menu"
@@ -90,30 +81,31 @@ export const Layout: React.FC<LayoutProps> = ({ children, admin = false }) => {
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                     }`}
                   >
-                    <List className="h-4 w-4 mr-2" />
-                    Menu
+                    Manajemen Menu
+                  </Link>
+                  <Link
+                    to="/admin/inventory"
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      isActive('/admin/inventory')
+                        ? 'border-primary-500 text-primary-600'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    }`}
+                  >
+                    Inventory
+                  </Link>
+                  <Link
+                    to="/admin/finance"
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      isActive('/admin/finance')
+                        ? 'border-primary-500 text-primary-600'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    }`}
+                  >
+                    Keuangan
                   </Link>
                 </>
               )}
             </nav>
-
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <img
-                  src={user?.avatar_url || '/default-avatar.png'}
-                  alt={user?.name}
-                  className="h-8 w-8 rounded-full"
-                />
-                <span className="text-sm font-medium text-gray-700">{user?.name}</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-                <LogOut className="h-4 w-4 mr-1" />
-                Logout
-              </button>
-            </div>
           </div>
         </div>
       </header>
