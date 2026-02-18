@@ -6,16 +6,12 @@ import { useCartStore } from '../store/cartStore'
 import { formatRupiah, generateWhatsAppMessage } from '../utils/formatRupiah'
 import { toast } from 'react-hot-toast'
 import { 
-  MapPin, 
-  Clock, 
   Home, 
-  CreditCard, 
   Truck,
+  Clock,
   CheckCircle,
   ArrowLeft
 } from 'lucide-react'
-
-type Order = Database['public']['Tables']['orders']['Row']
 
 interface CheckoutForm {
   type: 'dine-in' | 'delivery' | 'pickup'
@@ -91,6 +87,23 @@ export const CheckoutPage: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('User not authenticated')
 
+      // Deduct inventory first (this will throw if stock is insufficient)
+      const { error: inventoryError } = await supabase.rpc('deduct_inventory_for_order', {
+        p_order_items: items
+      })
+
+      if (inventoryError) {
+        // Check if it's a stock insufficiency error
+        if (inventoryError.message.includes('Stok tidak mencukupi')) {
+          toast.error(inventoryError.message)
+        } else {
+          console.error('Error deducting inventory:', inventoryError)
+          toast.error('Gagal memproses inventori')
+        }
+        setLoading(false)
+        return
+      }
+
       const orderItems = items.map(item => ({
         menu_id: item.menu_id,
         name: item.name,
@@ -98,7 +111,7 @@ export const CheckoutPage: React.FC = () => {
         quantity: item.quantity,
       }))
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
@@ -110,8 +123,6 @@ export const CheckoutPage: React.FC = () => {
           address: checkoutForm.type === 'delivery' ? checkoutForm.address : null,
           pickup_time: checkoutForm.type === 'pickup' ? checkoutForm.pickup_time : null,
         })
-        .select()
-        .single()
 
       if (error) throw error
 

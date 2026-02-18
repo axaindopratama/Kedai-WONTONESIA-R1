@@ -4,7 +4,6 @@ import { Database } from '../../supabase/types'
 import { useCartStore } from '../../store/cartStore'
 import { toast } from 'react-hot-toast'
 import { MenuCard } from '../../components/MenuCard'
-import { Filter, ShoppingCart } from 'lucide-react'
 import { CartButton } from '../../components/CartButton'
 
 type MenuItem = Database['public']['Tables']['menus']['Row']
@@ -16,7 +15,7 @@ export const MenuPage: React.FC = () => {
   const [filteredMenus, setFilteredMenus] = useState<MenuItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState('Semua')
   const [loading, setLoading] = useState(true)
-  const { addItem, getItemCount } = useCartStore()
+  const { addItem } = useCartStore()
 
   useEffect(() => {
     fetchMenus()

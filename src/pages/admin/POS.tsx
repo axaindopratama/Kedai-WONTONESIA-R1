@@ -1,20 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { supabase } from '../../supabase/client'
 import { Database } from '../../supabase/types'
 import { formatRupiah } from '../../utils/formatRupiah'
 import { useCartStore } from '../../store/cartStore'
 import { toast } from 'react-hot-toast'
-import { ShoppingCart, Plus, Minus, CreditCard, Clock } from 'lucide-react'
-import { CartButton } from '../../components/CartButton'
+import { ShoppingCart, Plus, CreditCard } from 'lucide-react'
 
 type MenuItem = Database['public']['Tables']['menus']['Row']
+
+interface CartItem {
+  menu_id: string
+  name: string
+  price: number
+  quantity: number
+}
 
 export const AdminPOS: React.FC = () => {
   const [menus, setMenus] = useState<MenuItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState('Semua')
   const [tableNo, setTableNo] = useState('')
   const [loading, setLoading] = useState(true)
-  const { items, clearCart, getTotal, getItemCount } = useCartStore()
+  const { items, addItem, clearCart, getTotal } = useCartStore()
 
   const categories = ['Semua', 'Makanan', 'Minuman', 'Snack']
 
@@ -44,30 +50,14 @@ export const AdminPOS: React.FC = () => {
     : menus.filter(menu => menu.category === selectedCategory)
 
   const handleAddToCart = (menu: MenuItem) => {
-    const existingItem = items.find(item => item.menu_id === menu.id)
-    
-    if (existingItem) {
-      // Update quantity
-      const updatedItems = items.map(item =>
-        item.menu_id === menu.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-      // This would require updating the Zustand store to accept items array
-      // For now, we'll use the existing addItem function which handles this
-      toast.success(`${menu.name} quantity updated`)
-    } else {
-      // Add new item
-      const newItem = {
-        menu_id: menu.id,
-        name: menu.name,
-        price: menu.price,
-        quantity: 1,
-      }
-      // This would require updating the Zustand store to accept single item
-      // For now, we'll show a message
-      toast.success(`${menu.name} added to cart`)
+    const cartItem: CartItem = {
+      menu_id: menu.id,
+      name: menu.name,
+      price: menu.price,
+      quantity: 1,
     }
+    addItem(cartItem)
+    toast.success(`${menu.name} ditambahkan ke keranjang`)
   }
 
   const handleCreateOrder = async () => {
@@ -85,6 +75,22 @@ export const AdminPOS: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('User not authenticated')
 
+      // Deduct inventory first (this will throw if stock is insufficient)
+      const { error: inventoryError } = await supabase.rpc('deduct_inventory_for_order', {
+        p_order_items: items
+      })
+
+      if (inventoryError) {
+        // Check if it's a stock insufficiency error
+        if (inventoryError.message.includes('Stok tidak mencukupi')) {
+          toast.error(inventoryError.message)
+        } else {
+          console.error('Error deducting inventory:', inventoryError)
+          toast.error('Gagal memproses inventori')
+        }
+        return
+      }
+
       const orderItems = items.map(item => ({
         menu_id: item.menu_id,
         name: item.name,
@@ -92,7 +98,7 @@ export const AdminPOS: React.FC = () => {
         quantity: item.quantity,
       }))
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
@@ -102,8 +108,6 @@ export const AdminPOS: React.FC = () => {
           type: 'dine-in',
           table_no: tableNo,
         })
-        .select()
-        .single()
 
       if (error) throw error
 

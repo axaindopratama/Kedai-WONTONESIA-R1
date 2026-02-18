@@ -7,8 +7,6 @@ import {
   ShoppingCart, 
   DollarSign, 
   Package, 
-  Users,
-  TrendingUp,
   Clock,
   CheckCircle,
   Truck,

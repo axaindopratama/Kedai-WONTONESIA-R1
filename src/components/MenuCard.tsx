@@ -1,8 +1,10 @@
 import React from 'react'
-import { MenuItem } from '../supabase/types'
+import { Database } from '../supabase/types'
 import { Plus, Minus } from 'lucide-react'
 import { useCartStore } from '../store/cartStore'
 import { toast } from 'react-hot-toast'
+
+type MenuItem = Database['public']['Tables']['menus']['Row']
 
 interface MenuCardProps {
   menu: MenuItem
@@ -10,7 +12,7 @@ interface MenuCardProps {
 }
 
 export const MenuCard: React.FC<MenuCardProps> = ({ menu, onAddToCart }) => {
-  const { addItem, removeItem, updateQuantity, items } = useCartStore()
+  const { removeItem, updateQuantity, items } = useCartStore()
   const cartItem = items.find(item => item.menu_id === menu.id)
 
   const handleIncrement = () => {

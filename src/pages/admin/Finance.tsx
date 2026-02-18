@@ -8,9 +8,7 @@ import {
   TrendingUp, 
   TrendingDown, 
   Plus, 
-  Calendar,
-  FileText,
-  PieChart
+  FileText
 } from 'lucide-react'
 import {
   LineChart,
@@ -23,8 +21,6 @@ import {
   PieChart as RechartsPieChart,
   Pie,
   Cell,
-  BarChart,
-  Bar,
 } from 'recharts'
 
 type Expense = Database['public']['Tables']['expenses']['Row']
@@ -344,7 +340,7 @@ export const AdminFinance: React.FC = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {expenseChartData.map((entry, index) => (
+                    {expenseChartData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>

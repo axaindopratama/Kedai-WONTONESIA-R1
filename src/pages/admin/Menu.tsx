@@ -3,7 +3,7 @@ import { supabase } from '../../supabase/client'
 import { Database } from '../../supabase/types'
 import { formatRupiah } from '../../utils/formatRupiah'
 import { toast } from 'react-hot-toast'
-import { Plus, Edit, Trash2, Upload } from 'lucide-react'
+import { Plus, Edit, Trash2 } from 'lucide-react'
 
 type MenuItem = Database['public']['Tables']['menus']['Row']
 
