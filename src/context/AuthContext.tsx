@@ -34,16 +34,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (authUser) {
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('uid', authUser.id)
-          .single()
-
-        if (userError) {
-          console.error('Error fetching user data:', userError)
-        } else {
+        // Try to fetch user data with retry logic (in case trigger hasn't created the record yet)
+        let userData = null
+        let attempts = 0
+        const maxAttempts = 5
+        
+        while (attempts < maxAttempts && !userData) {
+          const { data, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('uid', authUser.id)
+            .single()
+          
+          if (userError) {
+            console.warn(`Attempt ${attempts + 1} to fetch user data failed, retrying...`, userError)
+            attempts++
+            await new Promise(resolve => setTimeout(resolve, 500)) // Wait 500ms before retry
+          } else {
+            userData = data
+          }
+        }
+        
+        if (userData) {
           setUser(userData)
+        } else {
+          console.error('Failed to fetch user data after retries')
+          // Force logout if we can't fetch user data
+          await supabase.auth.signOut()
         }
       }
       
@@ -54,16 +71,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('uid', session.user.id)
-          .single()
-
-        if (userError) {
-          console.error('Error fetching user data:', userError)
-        } else {
+        // Same retry logic for auth state change
+        let userData = null
+        let attempts = 0
+        const maxAttempts = 5
+        
+        while (attempts < maxAttempts && !userData) {
+          const { data, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('uid', session.user.id)
+            .single()
+          
+          if (userError) {
+            console.warn(`Attempt ${attempts + 1} to fetch user data failed, retrying...`, userError)
+            attempts++
+            await new Promise(resolve => setTimeout(resolve, 500))
+          } else {
+            userData = data
+          }
+        }
+        
+        if (userData) {
           setUser(userData)
+        } else {
+          console.error('Failed to fetch user data after retries')
+          await supabase.auth.signOut()
         }
       } else if (event === 'SIGNED_OUT') {
         setUser(null)
