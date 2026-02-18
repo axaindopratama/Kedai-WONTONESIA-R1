@@ -8,7 +8,11 @@ export const LoginPage: React.FC = () => {
 
   React.useEffect(() => {
     if (user) {
-      navigate('/menu')
+      if (user.role === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate('/menu')
+      }
     }
   }, [user, navigate])
 

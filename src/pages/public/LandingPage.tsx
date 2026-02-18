@@ -7,7 +7,11 @@ export const LandingPage: React.FC = () => {
   const { user, login } = useAuth()
 
   if (user) {
-    return <Link to="/menu" className="block w-full h-full" />
+    if (user.role === 'admin') {
+      return <Link to="/admin" className="block w-full h-full" />
+    } else {
+      return <Link to="/menu" className="block w-full h-full" />
+    }
   }
 
   const features = [
