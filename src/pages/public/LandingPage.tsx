@@ -1,22 +1,8 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { Link } from 'react-router-dom'
 import { Utensils, Phone, MapPin, Clock } from 'lucide-react'
 
 export const LandingPage: React.FC = () => {
-  const { user, login } = useAuth()
-  const navigate = useNavigate()
-
-  React.useEffect(() => {
-    if (user) {
-      if (user.role === 'admin') {
-        navigate('/admin')
-      } else {
-        navigate('/menu')
-      }
-    }
-  }, [user, navigate])
-
   const features = [
     {
       icon: <Utensils className="h-8 w-8 text-primary-600" />,
@@ -58,17 +44,9 @@ export const LandingPage: React.FC = () => {
                 </p>
                 <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                   <div className="rounded-md shadow">
-                    <button
-                      onClick={login}
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 md:py-4 md:text-lg md:px-10"
-                    >
-                      Masuk dengan Google
-                    </button>
-                  </div>
-                  <div className="mt-3 sm:mt-0 sm:ml-3">
                     <Link
                       to="/menu"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 md:py-4 md:text-lg md:px-10"
+                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 md:py-4 md:text-lg md:px-10"
                     >
                       Lihat Menu
                     </Link>
@@ -116,16 +94,16 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
           <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             <span className="block">Siap untuk memesan?</span>
-            <span className="block text-primary-200">Masuk sekarang dan mulai pesan!</span>
+            <span className="block text-primary-200">Lihat menu dan pesan sekarang!</span>
           </h2>
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
             <div className="inline-flex rounded-md shadow">
-              <button
-                onClick={login}
+              <Link
+                to="/menu"
                 className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-primary-50"
               >
                 Mulai Sekarang
-              </button>
+              </Link>
             </div>
           </div>
         </div>
