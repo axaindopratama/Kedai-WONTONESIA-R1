@@ -1,18 +1,21 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { Utensils, Phone, MapPin, Clock } from 'lucide-react'
 
 export const LandingPage: React.FC = () => {
   const { user, login } = useAuth()
+  const navigate = useNavigate()
 
-  if (user) {
-    if (user.role === 'admin') {
-      return <Link to="/admin" className="block w-full h-full" />
-    } else {
-      return <Link to="/menu" className="block w-full h-full" />
+  React.useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate('/menu')
+      }
     }
-  }
+  }, [user, navigate])
 
   const features = [
     {
