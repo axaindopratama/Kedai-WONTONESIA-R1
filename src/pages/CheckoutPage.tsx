@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase/client'
-import { Database } from '../supabase/types'
 import { useCartStore } from '../store/cartStore'
 import { formatRupiah, generateWhatsAppMessage } from '../utils/formatRupiah'
 import { toast } from 'react-hot-toast'
